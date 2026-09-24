@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mapService = require('../services/map.service');
-const { protect } = require('../middleware/authMiddleware'); // For protected endpoints if needed
+const { protect } = require('../middleware/auth'); // For protected endpoints if needed
 
 // Get Risk Zones
 router.get('/risk-zones', async (req, res, next) => {

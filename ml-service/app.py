@@ -87,7 +87,12 @@ class GenericRequest(BaseModel):
 
 @app.get("/health")
 def health_check():
-    return {"status": "success", "message": "ML Service is running"}
+    import os
+    flood_model = os.path.exists("models/flood_model.pkl")
+    landslide_model = os.path.exists("models/landslide_model.pkl")
+    if not (flood_model and landslide_model):
+        raise HTTPException(status_code=503, detail="Required ML models are missing")
+    return {"status": "success", "message": "ML Service is running with all models loaded"}
 
 @app.post("/predict/flood")
 def get_flood_prediction(data: FloodRequest):

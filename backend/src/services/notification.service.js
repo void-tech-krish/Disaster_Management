@@ -1,4 +1,4 @@
-const { pool } = require('../../config/database');
+const { pool } = require('../config/database');
 const { sendEmail } = require('./email.service');
 const { sendSMS } = require('./sms.service');
 const fs = require('fs');

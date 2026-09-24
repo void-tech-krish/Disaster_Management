@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const commandCenterController = require('../controllers/commandCenterController');
-const { verifyToken, isAdminOrAuthority } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
-router.use(verifyToken);
-router.use(isAdminOrAuthority);
+router.use(protect);
+router.use(authorize('Authority', 'Admin'));
 
 router.get('/summary', commandCenterController.getSummary);
 

@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const logisticsController = require('../controllers/logisticsController');
-const { verifyToken, isAdminOrAuthority } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
-router.use(verifyToken);
-router.use(isAdminOrAuthority);
+router.use(protect);
+router.use(authorize('Authority', 'Admin'));
 
 router.get('/requests', logisticsController.getRequests);
 router.post('/requests', logisticsController.createRequest);

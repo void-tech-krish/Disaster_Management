@@ -3,6 +3,9 @@ require('dotenv').config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgres://username:password@localhost:5432/disasterguard_db',
+  ssl: {
+    rejectUnauthorized: false,
+  }
 });
 
 pool.on('connect', () => {

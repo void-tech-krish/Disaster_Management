@@ -795,7 +795,7 @@ const initDB = async () => {
 
     // PHASE 3 STEP 29 TABLES
     // Create Resource Requests table
-    await client.query(\`
+    await client.query(`
       CREATE TABLE IF NOT EXISTS resource_requests (
         id SERIAL PRIMARY KEY,
         resource_type VARCHAR(50) NOT NULL,
@@ -807,7 +807,7 @@ const initDB = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         approved_at TIMESTAMP
       )
-    \`);
+    `);
 
     await client.query('COMMIT');
     console.log('Database tables initialized successfully.');

@@ -1,0 +1,49 @@
+{
+  "datasets": [
+    {
+      "name": "Flood Dataset",
+      "hazard": "FLOOD",
+      "file": "train.csv",
+      "source": "Kaggle",
+      "rows": 1117957,
+      "target": "FloodProbability",
+      "status": "AVAILABLE"
+    },
+    {
+      "name": "Landslide Dataset",
+      "hazard": "LANDSLIDE",
+      "file": "regenerated_landslide_risk_dataset.csv",
+      "source": "Kaggle",
+      "rows": 4181,
+      "target": "Landslide Risk Prediction",
+      "status": "AVAILABLE"
+    },
+    {
+      "name": "Heatwave Dataset",
+      "hazard": "HEATWAVE",
+      "file": "Rajasthan_Heatwave_2006_2025.csv",
+      "source": "Kaggle",
+      "rows": 21960,
+      "target": "HEATWAVE",
+      "status": "AVAILABLE_RAJASTHAN"
+    },
+    {
+      "name": "Drought Dataset",
+      "hazard": "DROUGHT",
+      "file": "stage_4_drought_dataset.csv",
+      "source": "Kaggle",
+      "rows": 115985,
+      "target": "label",
+      "status": "AVAILABLE"
+    },
+    {
+      "name": "Cyclone Tracks Dataset",
+      "hazard": "CYCLONE",
+      "file": "cyclone_labels.csv",
+      "source": "Kaggle",
+      "rows": 10538,
+      "target": "N/A",
+      "status": "AVAILABLE"
+    }
+  ]
+}

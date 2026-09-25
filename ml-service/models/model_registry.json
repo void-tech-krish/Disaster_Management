@@ -28,7 +28,7 @@
             "PoliticalFactors"
         ],
         "metrics": {
-            "MSE": 0.001078112566,
+            "MSE": 0.0010781125660000001,
             "R2": 0.5800420408406246
         },
         "status": "TRAINED"

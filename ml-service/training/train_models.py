@@ -158,11 +158,47 @@ def train_drought():
     print(f"Drought Model Trained. Accuracy: {acc}")
 
 
+def train_cyclone():
+    print("Training Cyclone Model...")
+    df = pd.read_csv(os.path.join(DATA_DIR, 'raw', 'cyclone', 'cyclone_labels.csv'))
+    
+    target = 'WindSpeed'
+    features = ['Longitude', 'Latitude', 'PressureDrop', 'Pressure']
+    
+    X = df[features]
+    y = df[target]
+    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    model = RandomForestRegressor(n_estimators=50, random_state=42, n_jobs=-1)
+    model.fit(X_train, y_train)
+    
+    y_pred = model.predict(X_test)
+    mse = mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+    
+    model_path = os.path.join(MODELS_DIR, 'cyclone_model.pkl')
+    joblib.dump(model, model_path)
+    
+    model_registry.append({
+        "hazard": "CYCLONE",
+        "model_version": "cyclone-v1",
+        "algorithm": "RandomForestRegressor",
+        "dataset": "cyclone_labels.csv",
+        "target": target,
+        "features": features,
+        "metrics": {"MSE": mse, "R2": r2},
+        "status": "TRAINED"
+    })
+    print(f"Cyclone Model Trained. R2: {r2}")
+
+
 if __name__ == '__main__':
     train_flood()
     train_landslide()
     train_heatwave()
     train_drought()
+    train_cyclone()
     
     registry_path = os.path.join(MODELS_DIR, 'model_registry.json')
     with open(registry_path, 'w') as f:

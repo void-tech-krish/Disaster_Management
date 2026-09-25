@@ -3,8 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from services.prediction_service import (
     predict_flood, predict_landslide, process_cyclone, get_cyclone_history,
-    predict_heatwave, predict_forest_fire, predict_drought,
-    predict_lightning, predict_flash_flood
+    predict_heatwave, predict_forest_fire, predict_drought
 )
 
 app = FastAPI(title="DisasterGuard AI ML Service")
@@ -136,17 +135,5 @@ def get_drought_prediction(data: DroughtRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/predict/lightning")
-def get_lightning_prediction(data: GenericRequest):
-    try:
-        return predict_lightning(data.model_dump())
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/predict/flash_flood")
-def get_flash_flood_prediction(data: GenericRequest):
-    try:
-        return predict_flash_flood(data.model_dump())
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 

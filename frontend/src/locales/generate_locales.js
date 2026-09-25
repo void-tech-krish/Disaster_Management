@@ -4,7 +4,7 @@ const path = require('path');
 const keys = {
   common: ["dashboard", "alerts", "preparedness", "riskMap", "shelters", "safeRoute", "simulator", "analytics", "emergencyServices", "notifications", "settings", "profile", "logout", "language", "loading", "error", "retry", "refresh", "save", "cancel", "close", "viewDetails", "lastUpdated", "source", "location", "register", "login", "welcome"],
   risk: ["low", "moderate", "high", "critical", "riskScore", "riskLevel", "confidence", "currentRisk", "assessedRisk"],
-  hazards: ["flood", "landslide", "cyclone", "heatwave", "drought", "lightning", "thunderstorm", "earthquake", "forestFire", "flashFlood", "coldWave", "avalanche", "coastalFlood"],
+  hazards: ["flood", "landslide", "cyclone", "heatwave", "drought", "forestFire"],
   actions: ["takeAction", "staySafe", "findShelter", "findHospital", "findEmergencyServices", "viewSafeRoute", "callEmergencyServices", "markAsRead", "markAllAsRead"],
   preparedness: ["before", "during", "after", "emergencyKit", "water", "food", "firstAid", "flashlight", "powerBank", "documents", "emergencyContacts"],
   notifications: ["aiRiskAssessment", "officialWarning", "systemNotification", "preparednessReminder", "emergencyAlert", "resourceUpdate", "shelterUpdate", "dataSourceUpdate", "demoSimulation"],

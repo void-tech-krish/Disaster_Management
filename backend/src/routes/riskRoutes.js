@@ -34,8 +34,6 @@ router.post('/assess', async (req, res, next) => {
       heatwaveRisk,
       droughtRisk,
       forestFireRisk,
-      lightningRisk,
-      flashFloodRisk,
       cycloneData
     ] = await Promise.all([
       mlService.getFloodRisk(locationData),
@@ -43,12 +41,10 @@ router.post('/assess', async (req, res, next) => {
       heatwaveRiskPromise,
       mlService.getDroughtRisk(locationData),
       mlService.getUnsupportedRisk('forest_fire'),
-      mlService.getUnsupportedRisk('lightning'),
-      mlService.getUnsupportedRisk('flash_flood'),
       mlService.getCycloneData()
     ]);
     
-    const risks = [floodRisk, landslideRisk, heatwaveRisk, droughtRisk, forestFireRisk, lightningRisk, flashFloodRisk];
+    const risks = [floodRisk, landslideRisk, heatwaveRisk, droughtRisk, forestFireRisk];
     
     try {
         if (pool) {

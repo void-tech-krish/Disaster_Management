@@ -208,24 +208,3 @@ def predict_forest_fire(data: dict):
         "source": "Dataset unavailable"
     }
 
-def predict_lightning(data: dict):
-    return {
-        "hazard": "lightning",
-        "risk_score": 0,
-        "risk_level": "LOW",
-        "confidence": 0,
-        "factors": [],
-        "forecasts": [],
-        "source": "Dataset unavailable"
-    }
-
-def predict_flash_flood(data: dict):
-    return {
-        "hazard": "flash_flood",
-        "risk_score": 0,
-        "risk_level": "LOW",
-        "confidence": 0,
-        "factors": [],
-        "forecasts": [],
-        "source": "Dataset unavailable"
-    }

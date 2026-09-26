@@ -29,13 +29,14 @@ const WeatherCard = ({ userLocation }: { userLocation: any }) => {
       let res;
       if (userLocation.latitude && userLocation.longitude) {
         res = await api.get(`/weather/current?lat=${userLocation.latitude}&lon=${userLocation.longitude}`);
+        setWeather(res.data.success ? res.data : res.data.data);
       } else if (userLocation.location_city) {
         res = await api.get(`/weather/city?city=${userLocation.location_city}`);
+        setWeather(res.data.data || res.data);
       } else {
         setError('Location not provided.');
         return;
       }
-      setWeather(res.data.data);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Weather service is temporarily unavailable.');
     } finally {

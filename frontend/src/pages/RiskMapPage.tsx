@@ -13,23 +13,32 @@ const RiskMapPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [locRes, cycloneRes] = await Promise.all([
-          api.get('/locations'),
-          api.get('/risk/cyclone')
+        const [locRes] = await Promise.all([
+          api.get('/map/risk-map-locations')
         ]);
         
-        // Add some mock hazard/risk data since Phase 1 locations API only returned basic coords
-        const enrichedLocations = locRes.data.data.locations.map((loc: any, idx: number) => {
-          if (loc.name === 'Vijayawada') return { ...loc, hazard: 'Flood', risk_level: 'HIGH', population: 45000 };
-          if (loc.name === 'Mumbai') return { ...loc, hazard: 'Flood', risk_level: 'MODERATE', population: 120000 };
-          if (loc.name === 'Dehradun') return { ...loc, hazard: 'Landslide', risk_level: 'CRITICAL', population: 18420 };
-          return { ...loc, hazard: 'Earthquake', risk_level: 'LOW', population: 5000 };
-        });
-        setLocations(enrichedLocations);
+        const rawLocations = locRes.data.data.locations || [];
         
-        if (cycloneRes.data?.data?.status === 'success') {
-          setCycloneData(cycloneRes.data.data);
-        }
+        // Flatten locations so each risk becomes its own marker
+        const flattenedLocations = [];
+        rawLocations.forEach(loc => {
+           if (loc.risks && loc.risks.length > 0) {
+              loc.risks.forEach(risk => {
+                 flattenedLocations.push({
+                    id: `${loc.id}-${risk.hazard_type}`,
+                    real_id: loc.id,
+                    name: loc.name,
+                    lat: loc.latitude,
+                    lon: loc.longitude,
+                    hazard: risk.hazard_type,
+                    risk_level: risk.risk_level,
+                    risk_score: risk.risk_score
+                 });
+              });
+           }
+        });
+        
+        setLocations(flattenedLocations);
       } catch (err) {
         console.error('Error fetching data:', err);
       } finally {

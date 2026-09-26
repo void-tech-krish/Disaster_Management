@@ -32,14 +32,32 @@ const Dashboard = () => {
     };
     fetchData();
 
-    // Mock initial fetch of risks since simulation broadcast is private now
-    // Or we just show demo button and trigger assess
-    api.post('/risk/assess', { lat: 16.5, lon: 80.64 })
-      .then(res => {
-         setRisks(res.data.data.risks);
-         setLastUpdated(res.data.data.timestamp);
-      })
-      .catch(console.error);
+    const fetchRisk = (lat: number, lon: number) => {
+      api.post('/risk/assess', { lat, lon })
+        .then(res => {
+           setRisks(res.data.data.risks);
+           setLastUpdated(res.data.data.timestamp);
+        })
+        .catch(err => {
+          console.error(err);
+          setError('Failed to fetch risk data. Please check your backend connection.');
+          setLoading(false);
+        });
+    };
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          fetchRisk(position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+          console.warn('Geolocation failed or denied, using default Vijayawada coordinates');
+          fetchRisk(16.5, 80.64);
+        }
+      );
+    } else {
+      fetchRisk(16.5, 80.64);
+    }
   }, []);
 
   const simulateScenario = async (newScenario: string) => {

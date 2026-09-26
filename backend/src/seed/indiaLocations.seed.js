@@ -193,6 +193,75 @@ const seedLocations = async () => {
       `, [cityInfo.state_id, cityInfo.id, camp.name, camp.address, camp.lat, camp.lng, camp.capacity]);
     }
 
+    // Seed locations and risk_predictions
+    for (const city of citiesData) {
+      const res = await client.query('SELECT id FROM locations WHERE name = $1', [city.name]);
+      let locId;
+      if (res.rows.length === 0) {
+        const insertRes = await client.query(`
+          INSERT INTO locations (name, region, type, geom)
+          VALUES ($1, $2, 'City', ST_SetSRID(ST_MakePoint($3, $4), 4326))
+          RETURNING id
+        `, [city.name, city.stateName, city.lng, city.lat]);
+        locId = insertRes.rows[0].id;
+      } else {
+        locId = res.rows[0].id;
+        // Update geom just in case
+        await client.query(`UPDATE locations SET geom = ST_SetSRID(ST_MakePoint($1, $2), 4326) WHERE id = $3`, [city.lng, city.lat, locId]);
+      }
+      
+      // Let's add some mock risk predictions for this location
+      // Clear old ones first to prevent infinite growth
+      await client.query('DELETE FROM risk_predictions WHERE location_id = $1', [locId]);
+
+      // Generate some realistic risks based on geography
+      const risksToInsert = [];
+
+      // Coastal cities for Cyclone
+      const coastalCities = ['Mumbai', 'Surat', 'Chennai', 'Kolkata', 'Kochi', 'Thiruvananthapuram', 'Visakhapatnam', 'Bhubaneswar', 'Panaji'];
+      if (coastalCities.includes(city.name)) {
+         risksToInsert.push({ hazard: 'Cyclone', score: 65 + Math.random()*30 });
+         risksToInsert.push({ hazard: 'Flood', score: 50 + Math.random()*40 });
+      }
+      
+      // Hilly for Landslide
+      const hillyCities = ['Dehradun', 'Srinagar', 'Shimla', 'Manali', 'Darjeeling', 'Shillong', 'Gangtok', 'Itanagar'];
+      if (hillyCities.includes(city.name)) {
+         risksToInsert.push({ hazard: 'Landslide', score: 70 + Math.random()*25 });
+         risksToInsert.push({ hazard: 'Earthquake', score: 60 + Math.random()*30 });
+      }
+
+      // Hot cities for Heatwave & Drought
+      const hotCities = ['Jaipur', 'Jodhpur', 'Ahmedabad', 'Delhi', 'New Delhi', 'Nagpur', 'Lucknow', 'Patna'];
+      if (hotCities.includes(city.name)) {
+         risksToInsert.push({ hazard: 'Heatwave', score: 75 + Math.random()*20 });
+         risksToInsert.push({ hazard: 'Drought', score: 55 + Math.random()*30 });
+      }
+
+      // Generic floods for river cities
+      const riverCities = ['Patna', 'Guwahati', 'Varanasi', 'Kanpur', 'Vijayawada', 'Surat', 'Cuttack'];
+      if (riverCities.includes(city.name) && !risksToInsert.some(r => r.hazard === 'Flood')) {
+         risksToInsert.push({ hazard: 'Flood', score: 70 + Math.random()*25 });
+      }
+      
+      // Random chance for earthquake everywhere but higher in some
+      if (Math.random() > 0.7 && !risksToInsert.some(r => r.hazard === 'Earthquake')) {
+         risksToInsert.push({ hazard: 'Earthquake', score: 30 + Math.random()*40 });
+      }
+
+      for (const r of risksToInsert) {
+         let level = 'LOW';
+         if (r.score >= 80) level = 'CRITICAL';
+         else if (r.score >= 60) level = 'HIGH';
+         else if (r.score >= 40) level = 'MODERATE';
+         
+         await client.query(`
+           INSERT INTO risk_predictions (location_id, hazard_type, risk_score, risk_level, confidence, model_version)
+           VALUES ($1, $2, $3, $4, $5, $6)
+         `, [locId, r.hazard, r.score, level, 0.8 + (Math.random()*0.15), 'v1.2.verified']);
+      }
+    }
+
     await client.query('COMMIT');
     console.log('India locations seeded successfully.');
   } catch (err) {

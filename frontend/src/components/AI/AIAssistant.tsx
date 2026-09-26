@@ -45,7 +45,7 @@ const AIAssistant: React.FC = () => {
       const aiMessage: Message = { 
         id: (Date.now() + 1).toString(), 
         sender: 'ai', 
-        text: response.data.answer 
+        text: response.data.reply || response.data.answer 
       };
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {

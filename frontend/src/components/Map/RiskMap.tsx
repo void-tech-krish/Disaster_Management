@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import Map, { Marker, Popup, Source, Layer, NavigationControl } from 'react-map-gl';
-import type { FillLayer, LineLayer } from 'react-map-gl';
+import type { FillLayer, LineLayer, MapRef } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
@@ -14,6 +14,7 @@ interface Location {
   risk_level?: string;
   hazard?: string;
   population?: number;
+  real_id?: number;
 }
 
 interface RiskMapProps {
@@ -55,6 +56,35 @@ const RiskMap: React.FC<RiskMapProps> = ({ locations, activeFilter, showPopulati
     ? locations 
     : locations.filter(l => l.hazard === activeFilter);
 
+  const mapRef = useRef<MapRef>(null);
+
+  useEffect(() => {
+    if (mapRef.current && filteredLocations.length > 0) {
+      const lons = filteredLocations.map(l => l.lon);
+      const lats = filteredLocations.map(l => l.lat);
+      
+      const minLon = Math.min(...lons);
+      const maxLon = Math.max(...lons);
+      const minLat = Math.min(...lats);
+      const maxLat = Math.max(...lats);
+
+      if (minLon === maxLon && minLat === maxLat) {
+         mapRef.current.flyTo({ center: [minLon, minLat], zoom: 8, duration: 1000 });
+      } else {
+         mapRef.current.fitBounds(
+           [[minLon, minLat], [maxLon, maxLat]],
+           { padding: 60, duration: 1000, maxZoom: 10 }
+         );
+      }
+    } else if (mapRef.current && filteredLocations.length === 0) {
+      mapRef.current.flyTo({
+        center: [78.9629, 20.5937],
+        zoom: 4,
+        duration: 1000
+      });
+    }
+  }, [filteredLocations]);
+
   const riskZoneStyle = useMemo<Omit<FillLayer, 'source'>>(() => ({
     id: 'risk-zones-layer',
     type: 'fill',
@@ -93,6 +123,7 @@ const RiskMap: React.FC<RiskMapProps> = ({ locations, activeFilter, showPopulati
       </div>
 
       <Map
+        ref={mapRef}
         initialViewState={{
           longitude: 78.9629,
           latitude: 20.5937,
@@ -149,7 +180,7 @@ const RiskMap: React.FC<RiskMapProps> = ({ locations, activeFilter, showPopulati
                   </div>
                 )}
               </div>
-              <Link to={`/location/${selectedLocation.id}`} className="block text-center text-sm font-bold bg-dg-bg text-dg-primary border border-dg-primary px-3 py-1.5 rounded-lg hover:bg-orange-50 transition-colors">
+              <Link to={`/location/${selectedLocation.real_id || selectedLocation.id}`} className="block text-center text-sm font-bold bg-dg-bg text-dg-primary border border-dg-primary px-3 py-1.5 rounded-lg hover:bg-orange-50 transition-colors">
                 View Profile &rarr;
               </Link>
             </div>

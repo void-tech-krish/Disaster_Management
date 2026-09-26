@@ -23,7 +23,7 @@ const getModel = () => {
         throw new Error("Missing Gemini API Key");
     }
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const modelName = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+    const modelName = process.env.GEMINI_MODEL || "gemini-flash-latest";
     return genAI.getGenerativeModel({
         model: modelName,
         systemInstruction: systemInstruction,

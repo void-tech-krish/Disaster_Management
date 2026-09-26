@@ -19,7 +19,7 @@ export const useNetworkStatus = () => {
     const checkBackend = async () => {
       try {
         // Just a simple ping to any reliable backend endpoint or a dedicated status endpoint
-        await api.get('/data-sources/status', { timeout: 5000 });
+        await api.get('/data-sources/status', { timeout: 50000 });
         setStatus('ONLINE');
       } catch (err: any) {
         if (!navigator.onLine) {

@@ -3,9 +3,9 @@ const router = express.Router();
 const weatherController = require('../controllers/weather.controller');
 const { authenticateToken } = require('../middleware/auth');
 
-router.get('/', authenticateToken, weatherController.getCurrentWeather);
-router.get('/current', authenticateToken, weatherController.getCurrentWeather);
-router.get('/city', authenticateToken, weatherController.getWeatherByCity);
-router.get('/search', authenticateToken, weatherController.searchCities);
+router.get('/', weatherController.getCurrentWeather);
+router.get('/current', weatherController.getCurrentWeather);
+router.get('/city', weatherController.getWeatherByCity);
+router.get('/search', weatherController.searchCities);
 
 module.exports = router;

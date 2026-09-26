@@ -105,7 +105,7 @@ const WeatherCard = ({ userLocation }: { userLocation: any }) => {
 
           <div className="flex justify-between items-center text-xs text-slate-400 font-semibold mb-4">
             <div>High {weather.current.high}°C <span className="mx-2">•</span> Low {weather.current.low}°C</div>
-            <div>Updated {new Date(weather.updated_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+            <div>Updated {weather.updated_at ? new Date(weather.updated_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
           </div>
         </>
       ) : null}

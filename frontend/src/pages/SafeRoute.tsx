@@ -1,7 +1,8 @@
 // @ts-nocheck
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { MapContainer, TileLayer, Polyline, Popup, Marker, useMap, ZoomControl } from 'react-leaflet';
 import api from '../services/api';
+import LocationSearch from '../components/LocationSearch';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -24,87 +25,10 @@ L.Icon.Default.mergeOptions({
 
 const SafeRoute = () => {
   const [selectedLocation, setSelectedLocation] = useState<{city: string, state: string, lat: number, lng: number} | null>(null);
-  
-  const [states, setStates] = useState<any[]>([]);
-  const [cities, setCities] = useState<any[]>([]);
-  const [startCities, setStartCities] = useState<any[]>([]);
-  const [campsList, setCampsList] = useState<any[]>([]);
-
-  const [startStateId, setStartStateId] = useState<string>('');
-  const [startCityId, setStartCityId] = useState<string>('');
-  const [selectedStateId, setSelectedStateId] = useState<string>('');
-  const [selectedCityId, setSelectedCityId] = useState<string>('');
-  const [selectedCampId, setSelectedCampId] = useState<string>('');
-  
   const [routes, setRoutes] = useState<any[]>([]);
   const [destinationCamp, setDestinationCamp] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [mapCenter, setMapCenter] = useState<[number, number]>([20.6, 79.0]);
-
-  useEffect(() => {
-    api.get('/states').then(res => setStates(res.data.data.states)).catch(console.error);
-  }, []);
-
-  useEffect(() => {
-    setStartCityId('');
-    setRoutes([]);
-    setSelectedLocation(null);
-    if (startStateId) {
-      api.get(`/states/${startStateId}/cities`).then(res => setStartCities(res.data.data.cities)).catch(console.error);
-    } else {
-      setStartCities([]);
-    }
-  }, [startStateId]);
-
-  const handleStartCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const cityId = e.target.value;
-    setStartCityId(cityId);
-    setRoutes([]);
-    if (cityId) {
-      const city = startCities.find(c => c.id.toString() === cityId);
-      const state = states.find(s => s.id.toString() === startStateId);
-      if (city && state) {
-        setSelectedLocation({
-          city: city.name,
-          state: state.name,
-          lat: parseFloat(city.latitude),
-          lng: parseFloat(city.longitude)
-        });
-        setMapCenter([parseFloat(city.latitude), parseFloat(city.longitude)]);
-      }
-    } else {
-      setSelectedLocation(null);
-    }
-  };
-
-  useEffect(() => {
-    setSelectedCityId('');
-    setSelectedCampId('');
-    setRoutes([]);
-    setDestinationCamp(null);
-    if (selectedStateId) {
-      api.get(`/states/${selectedStateId}/cities`).then(res => setCities(res.data.data.cities)).catch(console.error);
-    } else {
-      setCities([]);
-    }
-  }, [selectedStateId]);
-
-  useEffect(() => {
-    setSelectedCampId('');
-    setRoutes([]);
-    setDestinationCamp(null);
-    if (selectedCityId) {
-      api.get(`/cities/${selectedCityId}/relief-camps`).then(res => setCampsList(res.data.data.relief_camps)).catch(console.error);
-    } else {
-      setCampsList([]);
-    }
-  }, [selectedCityId]);
-
-  const handleCampChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCampId(e.target.value);
-    setRoutes([]);
-    setDestinationCamp(null);
-  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,16 +36,10 @@ const SafeRoute = () => {
       alert("Please select a location first.");
       return;
     }
-    if (!selectedCampId) {
-      alert("Please select a destination relief camp.");
-      return;
-    }
     setLoading(true);
     try {
       const res = await api.post('/safe-route', { 
-        start: `${selectedLocation.city}, ${selectedLocation.state}`,
-        startCoords: { lat: selectedLocation.lat, lng: selectedLocation.lng },
-        destinationCampId: parseInt(selectedCampId) 
+        location: { lat: selectedLocation.lat, lng: selectedLocation.lng }
       });
       setRoutes(res.data.data.routes);
       setDestinationCamp(res.data.data.destination);
@@ -165,69 +83,21 @@ const SafeRoute = () => {
           <form onSubmit={handleSearch} className="bg-dg-surface p-6 rounded-[18px] border border-dg-border shadow-sm">
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-dg-muted mb-1 uppercase tracking-wider">Start State</label>
-                <select 
-                  value={startStateId}
-                  onChange={e => setStartStateId(e.target.value)}
-                  className="w-full bg-dg-bg border border-dg-border rounded-lg px-3 py-2 text-dg-navy focus:border-dg-primary outline-none appearance-none mb-3" 
-                >
-                  <option value="">-- Select State / UT --</option>
-                  {states.map(state => (
-                    <option key={state.id} value={state.id}>{state.name}</option>
-                  ))}
-                </select>
-
-                <label className="block text-xs font-bold text-dg-muted mb-1 uppercase tracking-wider">Start City</label>
-                <select 
-                  value={startCityId}
-                  onChange={handleStartCityChange}
-                  disabled={!startStateId || startCities.length === 0}
-                  className="w-full bg-dg-bg border border-dg-border rounded-lg px-3 py-2 text-dg-navy focus:border-dg-primary outline-none appearance-none mb-3 disabled:opacity-50" 
-                >
-                  <option value="">-- Select City --</option>
-                  {startCities.map(city => (
-                    <option key={city.id} value={city.id}>{city.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="pt-2 border-t border-dg-border mt-2">
-                <label className="block text-xs font-bold text-dg-muted mb-1 uppercase tracking-wider">Destination State</label>
-                <select 
-                  value={selectedStateId}
-                  onChange={e => setSelectedStateId(e.target.value)}
-                  className="w-full bg-dg-bg border border-dg-border rounded-lg px-3 py-2 text-dg-navy focus:border-dg-primary outline-none appearance-none mb-3" 
-                >
-                  <option value="">-- Select State / UT --</option>
-                  {states.map(state => (
-                    <option key={state.id} value={state.id}>{state.name}</option>
-                  ))}
-                </select>
-
-                <label className="block text-xs font-bold text-dg-muted mb-1 uppercase tracking-wider">Destination City</label>
-                <select 
-                  value={selectedCityId}
-                  onChange={e => setSelectedCityId(e.target.value)}
-                  disabled={!selectedStateId || cities.length === 0}
-                  className="w-full bg-dg-bg border border-dg-border rounded-lg px-3 py-2 text-dg-navy focus:border-dg-primary outline-none appearance-none mb-3 disabled:opacity-50" 
-                >
-                  <option value="">-- Select City --</option>
-                  {cities.map(city => (
-                    <option key={city.id} value={city.id}>{city.name}</option>
-                  ))}
-                </select>
-
-                <label className="block text-xs font-bold text-dg-muted mb-1 uppercase tracking-wider">Nearest Relief Camp</label>
-                <select 
-                  value={selectedCampId}
-                  onChange={handleCampChange}
-                  disabled={!selectedCityId || campsList.length === 0}
-                  className="w-full bg-dg-bg border border-dg-border rounded-lg px-3 py-2 text-dg-navy focus:border-dg-primary outline-none appearance-none disabled:opacity-50" 
-                >
-                  <option value="">-- Select Relief Camp --</option>
-                  {campsList.map(camp => (
-                    <option key={camp.id} value={camp.id}>{camp.name} {camp.is_demo ? '(Demo)' : ''}</option>
-                  ))}
-                </select>
+                <label className="block text-xs font-bold text-dg-muted mb-1 uppercase tracking-wider">Start Location</label>
+                <LocationSearch onLocationSelected={(loc) => {
+                  setSelectedLocation({
+                    city: loc.city,
+                    state: loc.state,
+                    lat: loc.latitude,
+                    lng: loc.longitude
+                  });
+                  setMapCenter([loc.latitude, loc.longitude]);
+                  setRoutes([]);
+                  setDestinationCamp(null);
+                }} />
+                {selectedLocation && (
+                  <p className="text-xs text-dg-primary mt-1 font-bold">Selected: {selectedLocation.city}, {selectedLocation.state}</p>
+                )}
               </div>
               <button 
                 type="submit" 

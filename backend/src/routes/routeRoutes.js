@@ -6,28 +6,31 @@ const { pool } = require('../config/database');
 // Live Routing logic using Mapbox Directions API
 router.post('/', async (req, res, next) => {
   try {
-    const { start, startCoords, destinationCampId } = req.body;
+    const { location } = req.body;
 
     // Use dynamic coordinates from frontend
-    if (!startCoords || !startCoords.lat || !startCoords.lng) {
-      return res.status(400).json({ status: 'error', message: 'startCoords (lat, lng) are required.' });
-    }
-    if (!destinationCampId) {
-      return res.status(400).json({ status: 'error', message: 'destinationCampId is required.' });
+    if (!location || !location.lat || !location.lng) {
+      return res.status(400).json({ status: 'error', message: 'location (lat, lng) is required.' });
     }
 
-    const originLat = startCoords.lat;
-    const originLng = startCoords.lng;
+    const originLat = location.lat;
+    const originLng = location.lng;
 
-    // 1. Validate destinationCampId and get coordinates
-    const campResult = await pool.query('SELECT * FROM relief_camps WHERE id = $1', [destinationCampId]);
+    // 1. Find nearest relief camp
+    const campResult = await pool.query(`
+      SELECT *, 
+      ( 6371 * acos( cos( radians($1) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians($2) ) + sin( radians($1) ) * sin( radians( latitude ) ) ) ) AS calc_distance 
+      FROM relief_camps 
+      ORDER BY calc_distance ASC LIMIT 1
+    `, [originLat, originLng]);
+
     if (!campResult.rows.length) {
-      return res.status(404).json({ status: 'error', message: 'Relief camp not found.' });
+      return res.status(404).json({ status: 'error', message: 'No nearby relief camps found.' });
     }
     
     const camp = campResult.rows[0];
     if (!camp.latitude || !camp.longitude) {
-      return res.status(400).json({ status: 'error', message: 'Selected relief camp does not have valid coordinates.' });
+      return res.status(400).json({ status: 'error', message: 'Nearest relief camp does not have valid coordinates.' });
     }
 
     const destLat = camp.latitude;

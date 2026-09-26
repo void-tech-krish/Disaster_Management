@@ -36,14 +36,18 @@ router.post('/assess', async (req, res, next) => {
     const isRajasthan = lat >= 23.0 && lat <= 30.5 && lon >= 69.0 && lon <= 78.5;
 
     if (!lat || !lon || isRajasthan) {
-       heatwaveRiskPromise = mlService.getHeatwaveRisk(locationData);
+       heatwaveRiskPromise = mlService.getHeatwaveRisk(locationData).then(res => {
+         if (res.status !== 'UNAVAILABLE') res.available = true;
+         return res;
+       });
     } else {
        heatwaveRiskPromise = Promise.resolve({
            hazard: 'heatwave',
-           risk_score: 0,
+           available: false,
+           status: 'LIMITED_DATASET_COVERAGE',
+           risk_score: null,
            risk_level: 'UNKNOWN',
-           confidence: 0,
-           source: 'Dataset unavailable for this location (Rajasthan only)'
+           message: 'Heatwave ML assessment is currently available only for Rajasthan because the current model was trained on Rajasthan-specific data.'
        });
     }
 
@@ -55,11 +59,23 @@ router.post('/assess', async (req, res, next) => {
       forestFireRisk,
       cycloneData
     ] = await Promise.all([
-      mlService.getFloodRisk(locationData),
-      mlService.getLandslideRisk(locationData),
+      mlService.getFloodRisk(locationData).then(r => ({ ...r, available: r.status !== 'UNAVAILABLE' })),
+      mlService.getLandslideRisk(locationData).then(r => ({ ...r, available: r.status !== 'UNAVAILABLE' })),
       heatwaveRiskPromise,
-      mlService.getDroughtRisk(locationData),
-      mlService.getUnsupportedRisk('forest_fire'),
+      mlService.getDroughtRisk(locationData).then(r => ({ ...r, available: r.status !== 'UNAVAILABLE' })),
+      mlService.getForestFireRisk(locationData).then(r => {
+        if (r.status === 'DEMO / NOT TRAINED') {
+          return {
+            hazard: 'forest_fire',
+            available: false,
+            status: 'DEMO / NOT TRAINED',
+            risk_score: null,
+            risk_level: 'UNKNOWN',
+            message: 'Forest Fire risk prediction is not yet available because a trained model is not currently deployed.'
+          };
+        }
+        return { ...r, available: r.status !== 'UNAVAILABLE' };
+      }),
       mlService.getCycloneData()
     ]);
     

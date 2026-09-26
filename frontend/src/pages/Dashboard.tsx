@@ -117,6 +117,8 @@ const Dashboard = () => {
               factors={risk.factors}
               forecasts={risk.forecasts}
               source={risk.source}
+              available={risk.available}
+              message={risk.message}
             />
           ))}
         </div>

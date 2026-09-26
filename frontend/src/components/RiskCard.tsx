@@ -21,11 +21,52 @@ interface RiskCardProps {
   factors?: Factor[];
   forecasts?: Forecast[];
   source?: string;
+  available?: boolean;
+  message?: string;
 }
 
-const RiskCard: React.FC<RiskCardProps> = ({ hazard, score, level, confidence, factors = [], forecasts = [], source }) => {
+const RiskCard: React.FC<RiskCardProps> = ({ hazard, score, level, confidence, factors = [], forecasts = [], source, available = true, message }) => {
   const [isExplanationOpen, setIsExplanationOpen] = useState(false);
   
+  if (available === false) {
+    let displayStatus = "Unavailable";
+    if (level === "UNKNOWN" || source?.includes("Dataset unavailable")) {
+      if (message && (message.includes("trained") || message.includes("DEMO"))) {
+         displayStatus = "Model Not Trained";
+      } else {
+         displayStatus = "Limited Coverage";
+      }
+    }
+    
+    return (
+      <div className="bg-slate-50 p-6 rounded-[18px] border border-slate-200 shadow-sm flex flex-col h-full opacity-80">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h3 className="text-xl font-extrabold text-slate-500 capitalize">{hazard.replace('_', ' ')} Risk</h3>
+            {source && (
+              <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400 mt-1">
+                {source}
+              </p>
+            )}
+          </div>
+          <span className="font-black text-2xl text-slate-400">-</span>
+        </div>
+        
+        <div className="mb-4 flex justify-between items-end">
+          <div className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border text-slate-500 border-slate-300 bg-slate-100">
+            {displayStatus}
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl border border-slate-200 mb-4 flex-grow flex items-center justify-center text-center">
+          <p className="text-sm text-slate-500 font-medium">
+            {message || "This assessment is currently unavailable."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   let levelColor = "text-success";
   let bgGlow = "shadow-success/20";
   let hexColor = "#22c55e"; // green

@@ -88,14 +88,23 @@ const getCycloneData = async () => {
   }
 };
 
-const getUnsupportedRisk = async (hazardName) => {
-  return {
-    hazard: hazardName,
-    risk_score: 0,
-    risk_level: 'LOW',
-    confidence: 0,
-    source: 'Dataset unavailable'
-  };
+const getForestFireRisk = async (locationData) => {
+  try {
+    const response = await axios.post(`${ML_SERVICE_URL}/predict/forest_fire`, {
+      temperature: locationData.temperature || 30.0,
+      humidity: locationData.humidity || 50.0,
+      wind_speed: locationData.wind_speed || 10.0,
+      vegetation_dryness: 50.0,
+      rainfall_deficit: 0.0,
+      soil_moisture: locationData.soil_moisture || 50.0,
+      rainfall_intensity: locationData.rainfall || 0.0,
+      slope: locationData.elevation || 0.0
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching forest fire risk:', error.message);
+    return { hazard: 'forest_fire', status: 'UNAVAILABLE', risk_score: null, risk_level: 'UNKNOWN', source: 'ML_SERVICE_UNAVAILABLE', confidence: null };
+  }
 };
 
 module.exports = {
@@ -104,5 +113,5 @@ module.exports = {
   getHeatwaveRisk,
   getDroughtRisk,
   getCycloneData,
-  getUnsupportedRisk
+  getForestFireRisk
 };

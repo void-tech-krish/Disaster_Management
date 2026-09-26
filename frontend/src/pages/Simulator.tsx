@@ -161,6 +161,8 @@ const Simulator = () => {
                 confidence={null} // Simulations are deterministic mappings, confidence applies to real-world prediction bounds
                 factors={[]} // Excluded for simulation simplicity unless passed by ML service
                 forecasts={[]}
+                available={result.scenario.available !== false}
+                message={result.scenario.message}
               />
             </div>
           ) : (

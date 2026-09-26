@@ -1,8 +1,7 @@
 // @ts-nocheck
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Polyline, Popup, Marker, useMap, ZoomControl } from 'react-leaflet';
 import api from '../services/api';
-import LocationSearch from '../components/LocationSearch';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -25,10 +24,55 @@ L.Icon.Default.mergeOptions({
 
 const SafeRoute = () => {
   const [selectedLocation, setSelectedLocation] = useState<{city: string, state: string, lat: number, lng: number} | null>(null);
+  
+  const [states, setStates] = useState<any[]>([]);
+  const [startCities, setStartCities] = useState<any[]>([]);
+
+  const [startStateId, setStartStateId] = useState<string>('');
+  const [startCityId, setStartCityId] = useState<string>('');
+
   const [routes, setRoutes] = useState<any[]>([]);
   const [destinationCamp, setDestinationCamp] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [mapCenter, setMapCenter] = useState<[number, number]>([20.6, 79.0]);
+
+  useEffect(() => {
+    api.get('/states').then(res => setStates(res.data.data.states)).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    setStartCityId('');
+    setRoutes([]);
+    setSelectedLocation(null);
+    setDestinationCamp(null);
+    if (startStateId) {
+      api.get(`/states/${startStateId}/cities`).then(res => setStartCities(res.data.data.cities)).catch(console.error);
+    } else {
+      setStartCities([]);
+    }
+  }, [startStateId]);
+
+  const handleStartCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const cityId = e.target.value;
+    setStartCityId(cityId);
+    setRoutes([]);
+    setDestinationCamp(null);
+    if (cityId) {
+      const city = startCities.find(c => c.id.toString() === cityId);
+      const state = states.find(s => s.id.toString() === startStateId);
+      if (city && state) {
+        setSelectedLocation({
+          city: city.name,
+          state: state.name,
+          lat: parseFloat(city.latitude),
+          lng: parseFloat(city.longitude)
+        });
+        setMapCenter([parseFloat(city.latitude), parseFloat(city.longitude)]);
+      }
+    } else {
+      setSelectedLocation(null);
+    }
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,21 +127,30 @@ const SafeRoute = () => {
           <form onSubmit={handleSearch} className="bg-dg-surface p-6 rounded-[18px] border border-dg-border shadow-sm">
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-dg-muted mb-1 uppercase tracking-wider">Start Location</label>
-                <LocationSearch onLocationSelected={(loc) => {
-                  setSelectedLocation({
-                    city: loc.city,
-                    state: loc.state,
-                    lat: loc.latitude,
-                    lng: loc.longitude
-                  });
-                  setMapCenter([loc.latitude, loc.longitude]);
-                  setRoutes([]);
-                  setDestinationCamp(null);
-                }} />
-                {selectedLocation && (
-                  <p className="text-xs text-dg-primary mt-1 font-bold">Selected: {selectedLocation.city}, {selectedLocation.state}</p>
-                )}
+                <label className="block text-xs font-bold text-dg-muted mb-1 uppercase tracking-wider">Start State</label>
+                <select 
+                  value={startStateId}
+                  onChange={e => setStartStateId(e.target.value)}
+                  className="w-full bg-dg-bg border border-dg-border rounded-lg px-3 py-2 text-dg-navy focus:border-dg-primary outline-none appearance-none mb-3" 
+                >
+                  <option value="">-- Select State / UT --</option>
+                  {states.map(state => (
+                    <option key={state.id} value={state.id}>{state.name}</option>
+                  ))}
+                </select>
+
+                <label className="block text-xs font-bold text-dg-muted mb-1 uppercase tracking-wider">Start City</label>
+                <select 
+                  value={startCityId}
+                  onChange={handleStartCityChange}
+                  disabled={!startStateId || startCities.length === 0}
+                  className="w-full bg-dg-bg border border-dg-border rounded-lg px-3 py-2 text-dg-navy focus:border-dg-primary outline-none appearance-none mb-3 disabled:opacity-50" 
+                >
+                  <option value="">-- Select City --</option>
+                  {startCities.map(city => (
+                    <option key={city.id} value={city.id}>{city.name}</option>
+                  ))}
+                </select>
               </div>
               <button 
                 type="submit" 

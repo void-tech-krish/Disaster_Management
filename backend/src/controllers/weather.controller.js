@@ -2,17 +2,24 @@ const weatherService = require('../services/weather.service');
 
 const getCurrentWeather = async (req, res, next) => {
   try {
-    const { lat, lon } = req.query;
+    const lat = req.query.lat;
+    const lon = req.query.lon || req.query.lng;
+    
     if (!lat || !lon) {
-      return res.status(400).json({ status: 'error', message: 'Missing lat or lon' });
+      return res.status(400).json({ success: false, message: 'Missing lat or lon' });
     }
     const weather = await weatherService.getCurrentWeatherByCoordinates(lat, lon);
-    res.status(200).json({ status: 'success', data: weather });
+    res.status(200).json({
+      success: true,
+      location: weather.location,
+      current: weather.current,
+      forecast: weather.forecast || []
+    });
   } catch (err) {
     if (err.message === 'WEATHER_API_KEY is not configured') {
-      return res.status(503).json({ status: 'error', message: 'Weather service unavailable (missing API key)' });
+      return res.status(503).json({ success: false, message: 'Weather service unavailable (missing API key)' });
     }
-    res.status(500).json({ status: 'error', message: err.message });
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 

@@ -20,8 +20,10 @@ router.post('/assess', async (req, res, next) => {
         if (weather && weather.current) {
           locationData.temperature = weather.current.temperature;
           locationData.humidity = weather.current.humidity;
-          // Approximate rainfall for demo/ml if not provided by weather API directly in simple current response
-          locationData.rainfall = weather.current.condition.includes('Rain') ? 15.0 : 0.0;
+          
+          if (weather.current.rainfall !== undefined && weather.current.rainfall !== null) {
+            locationData.rainfall = weather.current.rainfall;
+          }
         }
       } catch (weatherErr) {
         console.error('Failed to fetch weather for risk engine:', weatherErr.message);

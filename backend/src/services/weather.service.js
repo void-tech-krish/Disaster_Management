@@ -18,6 +18,7 @@ const normalizeWeather = (data, locationInfo = null) => {
       feels_like: Math.round(data.main.feels_like),
       humidity: data.main.humidity,
       wind_speed: data.wind.speed,
+      rainfall: data.rain ? (data.rain['1h'] || data.rain['3h'] || 0) : 0,
       condition: data.weather[0].main,
       description: data.weather[0].description,
       icon: data.weather[0].icon,

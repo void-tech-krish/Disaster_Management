@@ -4,6 +4,6 @@
 
 @layer base {
   body {
-    @apply bg-charcoal text-white font-sans;
+    @apply bg-dg-bg text-dg-text font-sans;
   }
 }

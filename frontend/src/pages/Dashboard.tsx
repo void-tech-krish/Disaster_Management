@@ -6,9 +6,12 @@ import { socket } from '../services/socket';
 import api from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { useAuth } from '../context/AuthContext';
+import WeatherCard from '../components/Weather/WeatherCard';
 
 const Dashboard = () => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const status = useNetworkStatus();
   const [risks, setRisks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -57,31 +60,31 @@ const Dashboard = () => {
        if (isRisk) return <span className="text-warning font-bold text-xs uppercase">CACHED AI RISK ASSESSMENT</span>;
        return <span className="text-warning font-bold text-xs uppercase">CACHED DATA</span>;
     }
-    if (freshness === 'FRESH' || freshness === 'AGING') return <span className="text-success font-bold text-xs uppercase">LIVE</span>;
-    if (freshness === 'STALE' || freshness === 'EXPIRED') return <span className="text-warning font-bold text-xs uppercase">STALE</span>;
-    return <span className="text-danger font-bold text-xs uppercase">UNAVAILABLE</span>;
+    if (freshness === 'FRESH' || freshness === 'AGING') return <span className="text-dg-success font-bold text-xs uppercase">LIVE</span>;
+    if (freshness === 'STALE' || freshness === 'EXPIRED') return <span className="text-dg-warning font-bold text-xs uppercase">STALE</span>;
+    return <span className="text-dg-danger font-bold text-xs uppercase">UNAVAILABLE</span>;
   };
 
   return (
     <div className="max-w-6xl mx-auto">
       <header className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <h1 className="text-3xl font-bold mb-2">{t('common.dashboard')}</h1>
-          <p className="text-gray-400">{t('common.location')}: <span className="text-white">Vijayawada</span></p>
+          <h1 className="text-3xl font-extrabold text-dg-navy mb-2">{t('common.dashboard')}</h1>
+          <p className="text-dg-muted font-medium">{t('common.location')}: <span className="text-dg-navy font-bold">{user?.location_city || 'Vijayawada'}</span></p>
         </div>
-        <div className="bg-charcoal p-4 rounded-xl border border-gray-700 flex flex-col justify-center">
-          <h3 className="text-xs text-gray-400 uppercase tracking-wider mb-2 font-bold">Data & Warning Status</h3>
+        <div className="bg-dg-surface p-4 rounded-[18px] border border-dg-border flex flex-col justify-center shadow-sm">
+          <h3 className="text-xs text-dg-muted uppercase tracking-wider mb-2 font-bold">Data & Warning Status</h3>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-400">Risk Source:</span>
+              <span className="text-dg-muted font-medium">Risk Source:</span>
               {getSourceStatusLabel('Risk', true)}
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400">Official Warning:</span>
+              <span className="text-dg-muted font-medium">Official Warning:</span>
               <span className="text-xs">{getSourceStatusLabel(getSourceFreshness('Gov Official Alerts'))}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400">Weather:</span>
+              <span className="text-dg-muted font-medium">Weather:</span>
               <span className="text-xs">{getSourceStatusLabel(getSourceFreshness('OpenMeteo Weather API'))}</span>
             </div>
           </div>
@@ -95,8 +98,12 @@ const Dashboard = () => {
       )}
 
       {lastUpdated && (
-        <p className="text-sm text-gray-400 mb-4 animate-pulse">{t('common.lastUpdated')}</p>
+        <p className="text-sm text-dg-muted font-medium mb-4 animate-pulse">{t('common.lastUpdated')}</p>
       )}
+
+      <div className="mb-8">
+        <WeatherCard userLocation={user?.latitude ? user : { location_city: 'Vijayawada' }} />
+      </div>
 
       {risks.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -115,7 +122,7 @@ const Dashboard = () => {
         </div>
       ) : (
         !loading && (
-          <div className="text-center py-20 text-gray-500 border border-dashed border-gray-700 rounded-xl">
+          <div className="text-center py-20 text-dg-muted border border-dashed border-dg-border rounded-[18px]">
             {t('common.loading')}...
           </div>
         )

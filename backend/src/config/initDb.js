@@ -41,6 +41,45 @@ const initDB = async () => {
       )
     `);
 
+    // Create States table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS states (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) UNIQUE NOT NULL,
+        code VARCHAR(10) UNIQUE,
+        type VARCHAR(50) NOT NULL
+      )
+    `);
+
+    // Create Cities table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS cities (
+        id SERIAL PRIMARY KEY,
+        state_id INTEGER REFERENCES states(id) ON DELETE CASCADE,
+        name VARCHAR(100) NOT NULL,
+        latitude DECIMAL(10, 8),
+        longitude DECIMAL(11, 8),
+        UNIQUE(state_id, name)
+      )
+    `);
+
+    // Create Relief Camps table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS relief_camps (
+        id SERIAL PRIMARY KEY,
+        state_id INTEGER REFERENCES states(id),
+        city_id INTEGER REFERENCES cities(id) ON DELETE CASCADE,
+        name VARCHAR(150) NOT NULL,
+        address TEXT,
+        latitude DECIMAL(10, 8) NOT NULL,
+        longitude DECIMAL(11, 8) NOT NULL,
+        capacity INTEGER,
+        status VARCHAR(50) DEFAULT 'OPEN',
+        source_type VARCHAR(50) DEFAULT 'DEMO',
+        is_demo BOOLEAN DEFAULT true
+      )
+    `);
+
     // Create Risk Predictions table
     await client.query(`
       CREATE TABLE IF NOT EXISTS risk_predictions (

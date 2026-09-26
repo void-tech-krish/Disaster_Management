@@ -38,24 +38,22 @@ class LandslideRequest(BaseModel):
     elevation_m: float = Field(alias="Elevation (m)", default=500.0)
 
 class HeatwaveRequest(BaseModel):
-    WIND_U10: float = 0.0
-    WIND_V10: float = 0.0
-    MSLP: float = 1000.0
-    BLH: float = 1000.0
-    GEOP: float = 1000.0
-    TEMP2M: float = 30.0
-    TMAX: float = 35.0
-    TMIN: float = 25.0
-    DEW2M: float = 20.0
-    CLOUD: float = 0.5
-    RAIN: float = 0.0
-    SRAD: float = 500.0
-    EVAP: float = 0.1
-    SOILT1: float = 30.0
-    SOILM1: float = 0.2
-    LAI: float = 1.0
-    lat: Optional[float] = None
-    lon: Optional[float] = None
+    latitude: float = 20.0
+    longitude: float = 78.0
+    wind_speed: float = 10.0
+    cloud_cover: float = 50.0
+    precipitation_probability: float = 10.0
+    pressure_surface_level: float = 1000.0
+    dew_point: float = 20.0
+    uv_index: float = 5.0
+    visibility: float = 10.0
+    rainfall: float = 0.0
+    solar_radiation: float = 500.0
+    snowfall: float = 0.0
+    max_temperature: float = 35.0
+    min_temperature: float = 25.0
+    max_humidity: float = 80.0
+    min_humidity: float = 40.0
 
 class DroughtRequest(BaseModel):
     RH2M: float = 50.0

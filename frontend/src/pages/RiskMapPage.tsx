@@ -43,8 +43,8 @@ const RiskMapPage = () => {
     <div className="max-w-6xl mx-auto">
       <header className="mb-6 flex flex-col md:flex-row md:justify-between md:items-end">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Interactive Risk Map</h1>
-          <p className="text-gray-400">View real-time disaster risks and exposed population zones.</p>
+          <h1 className="text-3xl font-extrabold text-dg-navy mb-2">Interactive Risk Map</h1>
+          <p className="text-dg-muted font-medium">View real-time disaster risks and exposed population zones.</p>
         </div>
         
         <div className="mt-4 md:mt-0 flex flex-col items-end space-y-3">
@@ -53,16 +53,16 @@ const RiskMapPage = () => {
               <button 
                 key={f}
                 onClick={() => setActiveFilter(f)}
-                className={`text-xs px-3 py-1.5 rounded font-bold transition-colors ${activeFilter === f ? 'bg-warning text-darkslate' : 'bg-darkslate text-gray-300 hover:bg-gray-700'}`}
+                className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-colors ${activeFilter === f ? 'bg-dg-primary text-white shadow-sm' : 'bg-dg-surface text-dg-muted hover:bg-slate-100 border border-dg-border'}`}
               >
                 {f}
               </button>
             ))}
           </div>
-          <label className="flex items-center space-x-2 text-sm cursor-pointer bg-darkslate px-3 py-1.5 rounded border border-gray-700 hover:border-warning transition-colors">
+          <label className="flex items-center space-x-2 text-sm cursor-pointer bg-dg-surface text-dg-navy font-medium px-3 py-1.5 rounded-lg border border-dg-border hover:border-dg-primary transition-colors shadow-sm">
             <input 
               type="checkbox" 
-              className="accent-warning"
+              className="accent-dg-primary"
               checked={showPopulation}
               onChange={() => setShowPopulation(!showPopulation)}
             />
@@ -72,8 +72,8 @@ const RiskMapPage = () => {
       </header>
 
       {loading ? (
-        <div className="h-[600px] w-full bg-darkslate animate-pulse rounded-xl border border-gray-700 flex items-center justify-center">
-          <span className="text-gray-500">Loading Map Data...</span>
+        <div className="h-[600px] w-full bg-dg-surface animate-pulse rounded-[18px] border border-dg-border flex items-center justify-center">
+          <span className="text-dg-muted font-medium">Loading Map Data...</span>
         </div>
       ) : (
         <RiskMap locations={locations} activeFilter={activeFilter} showPopulation={showPopulation} cycloneData={cycloneData} />

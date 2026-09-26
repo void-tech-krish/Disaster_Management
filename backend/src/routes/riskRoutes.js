@@ -4,16 +4,33 @@ const mlService = require('../services/ml.service');
 const pool = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
 const dataSourceService = require('../services/dataSources/dataSourceService');
+const weatherService = require('../services/weather.service');
 
 router.post('/assess', async (req, res, next) => {
   try {
     const locationData = req.body;
     
+    const lat = locationData.lat;
+    const lon = locationData.lon;
+
+    // Fetch real-time weather if coordinates are present
+    if (lat && lon) {
+      try {
+        const weather = await weatherService.getCurrentWeatherByCoordinates(lat, lon);
+        if (weather && weather.current) {
+          locationData.temperature = weather.current.temperature;
+          locationData.humidity = weather.current.humidity;
+          // Approximate rainfall for demo/ml if not provided by weather API directly in simple current response
+          locationData.rainfall = weather.current.condition.includes('Rain') ? 15.0 : 0.0;
+        }
+      } catch (weatherErr) {
+        console.error('Failed to fetch weather for risk engine:', weatherErr.message);
+      }
+    }
+
     // In a real application, you might detect which hazards apply based on location coordinates.
     // For Rajasthan bounds roughly (23.3 to 30.2 Lat, 69.4 to 78.3 Lon)
     let heatwaveRiskPromise;
-    const lat = locationData.lat;
-    const lon = locationData.lon;
     const isRajasthan = lat >= 23.0 && lat <= 30.5 && lon >= 69.0 && lon <= 78.5;
 
     if (!lat || !lon || isRajasthan) {

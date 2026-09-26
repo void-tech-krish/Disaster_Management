@@ -57,7 +57,7 @@ const Emergency: React.FC = () => {
         {loading ? (
           <p className="text-gray-400">Loading verified warnings...</p>
         ) : warnings.length === 0 ? (
-          <div className="bg-darkslate p-6 rounded-xl border border-success/30 text-success text-center">
+          <div className="bg-dg-surface p-6 rounded-xl border border-dg-success/30 text-dg-success font-bold text-center">
             No critical official warnings active at this time.
           </div>
         ) : (
@@ -114,41 +114,41 @@ const Emergency: React.FC = () => {
       )}
 
       {/* Emergency Contacts */}
-      <section className="bg-darkslate p-6 rounded-xl border border-gray-700 shadow-lg">
-        <h2 className="text-xl font-bold mb-4">Emergency Contacts (National)</h2>
+      <section className="bg-dg-surface p-6 rounded-xl border border-dg-border shadow-sm">
+        <h2 className="text-xl font-bold mb-4 text-dg-navy">Emergency Contacts (National)</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-charcoal p-4 rounded text-center border border-gray-600">
-            <div className="text-3xl font-black text-white">112</div>
-            <div className="text-xs text-gray-400 uppercase tracking-widest mt-1">All Emergencies</div>
+          <div className="bg-dg-bg p-4 rounded text-center border border-dg-border shadow-sm">
+            <div className="text-3xl font-black text-dg-navy">112</div>
+            <div className="text-xs text-dg-muted font-bold uppercase tracking-widest mt-1">All Emergencies</div>
           </div>
-          <div className="bg-charcoal p-4 rounded text-center border border-gray-600">
-            <div className="text-3xl font-black text-danger">100</div>
-            <div className="text-xs text-gray-400 uppercase tracking-widest mt-1">Police</div>
+          <div className="bg-dg-bg p-4 rounded text-center border border-dg-border shadow-sm">
+            <div className="text-3xl font-black text-dg-danger">100</div>
+            <div className="text-xs text-dg-muted font-bold uppercase tracking-widest mt-1">Police</div>
           </div>
-          <div className="bg-charcoal p-4 rounded text-center border border-gray-600">
-            <div className="text-3xl font-black text-warning">101</div>
-            <div className="text-xs text-gray-400 uppercase tracking-widest mt-1">Fire</div>
+          <div className="bg-dg-bg p-4 rounded text-center border border-dg-border shadow-sm">
+            <div className="text-3xl font-black text-dg-warning">101</div>
+            <div className="text-xs text-dg-muted font-bold uppercase tracking-widest mt-1">Fire</div>
           </div>
-          <div className="bg-charcoal p-4 rounded text-center border border-gray-600">
-            <div className="text-3xl font-black text-info">108</div>
-            <div className="text-xs text-gray-400 uppercase tracking-widest mt-1">Ambulance</div>
+          <div className="bg-dg-bg p-4 rounded text-center border border-dg-border shadow-sm">
+            <div className="text-3xl font-black text-dg-info">108</div>
+            <div className="text-xs text-dg-muted font-bold uppercase tracking-widest mt-1">Ambulance</div>
           </div>
         </div>
       </section>
 
       {/* Quick Links */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link to="/shelters" className="bg-charcoal p-4 rounded-xl border border-gray-600 shadow hover:bg-gray-700 text-center transition-colors">
+        <Link to="/shelters" className="bg-dg-surface p-4 rounded-xl border border-dg-border shadow-sm hover:bg-slate-50 text-center transition-colors">
           <span className="text-2xl mb-2 block">🏥</span>
-          <span className="font-bold">Nearby Shelters</span>
+          <span className="font-bold text-dg-navy">Nearby Shelters</span>
         </Link>
-        <Link to="/safe-route" className="bg-charcoal p-4 rounded-xl border border-gray-600 shadow hover:bg-gray-700 text-center transition-colors">
+        <Link to="/safe-route" className="bg-dg-surface p-4 rounded-xl border border-dg-border shadow-sm hover:bg-slate-50 text-center transition-colors">
           <span className="text-2xl mb-2 block">🗺️</span>
-          <span className="font-bold">Lower-Risk Routes</span>
+          <span className="font-bold text-dg-navy">Lower-Risk Routes</span>
         </Link>
-        <Link to="/offline" className="bg-charcoal p-4 rounded-xl border border-gray-600 shadow hover:bg-gray-700 text-center transition-colors">
+        <Link to="/offline" className="bg-dg-surface p-4 rounded-xl border border-dg-border shadow-sm hover:bg-slate-50 text-center transition-colors">
           <span className="text-2xl mb-2 block">📚</span>
-          <span className="font-bold">Offline Survival Guides</span>
+          <span className="font-bold text-dg-navy">Offline Survival Guides</span>
         </Link>
       </section>
     </div>

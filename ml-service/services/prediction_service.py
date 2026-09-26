@@ -149,7 +149,7 @@ def process_cyclone(data: dict):
     }
 
 def predict_heatwave(data: dict):
-    feature_names = ['WIND_U10', 'WIND_V10', 'MSLP', 'BLH', 'GEOP', 'TEMP2M', 'TMAX', 'TMIN', 'DEW2M', 'CLOUD', 'RAIN', 'SRAD', 'EVAP', 'SOILT1', 'SOILM1', 'LAI']
+    feature_names = ['latitude', 'longitude', 'wind_speed', 'cloud_cover', 'precipitation_probability', 'pressure_surface_level', 'dew_point', 'uv_index', 'visibility', 'rainfall', 'solar_radiation', 'snowfall', 'max_temperature', 'min_temperature', 'max_humidity', 'min_humidity']
     
     if os.path.exists(HEATWAVE_MODEL_PATH):
         model = joblib.load(HEATWAVE_MODEL_PATH)
@@ -169,7 +169,7 @@ def predict_heatwave(data: dict):
         "factors": factors,
         "forecasts": [],
         "model_version": "v1.0",
-        "source": "Rajasthan Historical Heatwave Dataset"
+        "source": "Indian Weather Heatwave Dataset"
     }
 
 def predict_drought(data: dict):

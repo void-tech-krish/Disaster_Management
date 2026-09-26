@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import RiskExplanation from './AI/RiskExplanation';
 
 interface Factor {
   name: string;
@@ -23,21 +24,23 @@ interface RiskCardProps {
 }
 
 const RiskCard: React.FC<RiskCardProps> = ({ hazard, score, level, confidence, factors = [], forecasts = [], source }) => {
+  const [isExplanationOpen, setIsExplanationOpen] = useState(false);
+  
   let levelColor = "text-success";
   let bgGlow = "shadow-success/20";
   let hexColor = "#22c55e"; // green
   
   if (level === "CRITICAL" || level === "UNKNOWN") {
-    levelColor = "text-danger";
-    bgGlow = "shadow-danger/50";
+    levelColor = "text-dg-danger";
+    bgGlow = "shadow-red-500/10 border-red-200";
     hexColor = "#ef4444"; // red
   } else if (level === "HIGH") {
-    levelColor = "text-warning";
-    bgGlow = "shadow-warning/40";
+    levelColor = "text-dg-warning";
+    bgGlow = "shadow-orange-500/10 border-orange-200";
     hexColor = "#f97316"; // orange
   } else if (level === "MODERATE") {
-    levelColor = "text-yellow-400";
-    bgGlow = "shadow-yellow-400/30";
+    levelColor = "text-yellow-500";
+    bgGlow = "shadow-yellow-500/10 border-yellow-200";
     hexColor = "#facc15"; // yellow
   }
 
@@ -48,10 +51,10 @@ const RiskCard: React.FC<RiskCardProps> = ({ hazard, score, level, confidence, f
   ];
 
   return (
-    <div className={`bg-darkslate p-6 rounded-xl border border-gray-700 shadow-lg ${bgGlow} transition-transform hover:-translate-y-1 flex flex-col h-full`}>
+    <div className={`bg-dg-surface p-6 rounded-[18px] border border-dg-border shadow-sm ${bgGlow} transition-transform hover:-translate-y-1 flex flex-col h-full`}>
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="text-xl font-bold capitalize">{hazard.replace('_', ' ')} Risk</h3>
+          <h3 className="text-xl font-extrabold text-dg-navy capitalize">{hazard.replace('_', ' ')} Risk</h3>
           {source && (
             <p className="text-[10px] uppercase font-bold tracking-wider text-blue-400 mt-1">
               {source}
@@ -66,24 +69,33 @@ const RiskCard: React.FC<RiskCardProps> = ({ hazard, score, level, confidence, f
           {level}
         </div>
         {confidence > 0 && (
-          <div className="text-xs text-gray-400">
+          <div className="text-xs font-bold text-dg-muted">
             Confidence: {(confidence * 100).toFixed(0)}%
           </div>
         )}
       </div>
+
+      <div className="mb-4">
+        <button 
+          onClick={() => setIsExplanationOpen(true)}
+          className="w-full bg-orange-50 hover:bg-orange-100 text-dg-primary border border-orange-200 text-xs font-bold py-2 rounded-lg transition-colors flex justify-center items-center"
+        >
+          <span className="mr-2">🧠</span> Why this risk?
+        </button>
+      </div>
       
       {/* Contributing Factors (Explainability) */}
-      <div className="bg-charcoal p-3 rounded-lg mb-4 flex-grow">
-        <h4 className="text-xs text-gray-400 uppercase tracking-wider mb-2">Contributing Factors</h4>
+      <div className="bg-dg-bg p-4 rounded-xl border border-dg-border mb-4 flex-grow">
+        <h4 className="text-xs font-bold text-dg-muted uppercase tracking-wider mb-3">Contributing Factors</h4>
         <div className="space-y-2">
           {factors.length > 0 ? factors.map((factor, idx) => (
             <div key={idx}>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="capitalize text-gray-300">{factor.name.replace('_', ' ')}</span>
-                <span className="text-gray-400">{factor.contribution}%</span>
+              <div className="flex justify-between text-xs mb-1 font-medium">
+                <span className="capitalize text-dg-navy">{factor.name.replace('_', ' ')}</span>
+                <span className="text-dg-muted">{factor.contribution}%</span>
               </div>
-              <div className="w-full bg-gray-800 rounded-full h-1.5">
-                <div className="bg-warning h-1.5 rounded-full" style={{ width: `${factor.contribution}%` }}></div>
+              <div className="w-full bg-slate-200 rounded-full h-1.5">
+                <div className="bg-dg-primary h-1.5 rounded-full" style={{ width: `${factor.contribution}%` }}></div>
               </div>
             </div>
           )) : (
@@ -91,22 +103,22 @@ const RiskCard: React.FC<RiskCardProps> = ({ hazard, score, level, confidence, f
           )}
         </div>
         {factors.length > 0 && (
-          <p className="text-[10px] text-gray-500 mt-2 italic">These factors contributed most to the model's current assessment.</p>
+          <p className="text-[10px] text-dg-muted mt-3 font-medium">These factors contributed most to the model's current assessment.</p>
         )}
       </div>
 
       {/* Forecast Trend Chart */}
       {forecasts.length > 0 && (
-        <div className="bg-charcoal p-3 rounded-lg h-40 relative">
-           <h4 className="text-xs text-gray-400 uppercase tracking-wider mb-2">Risk Forecast <span className="text-[10px] text-warning bg-warning/20 px-1 rounded ml-1">DEMO</span></h4>
+        <div className="bg-dg-bg p-4 rounded-xl border border-dg-border h-40 relative">
+           <h4 className="text-xs font-bold text-dg-muted uppercase tracking-wider mb-2">Risk Forecast <span className="text-[10px] text-dg-warning bg-dg-warning/10 px-1 rounded ml-1">DEMO</span></h4>
            <div className="absolute top-8 left-2 right-2 bottom-2">
              <ResponsiveContainer width="100%" height="100%">
                <LineChart data={chartData}>
-                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
-                 <XAxis dataKey="time" stroke="#9ca3af" fontSize={10} tickLine={false} axisLine={false} />
+                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E1D8" vertical={false} />
+                 <XAxis dataKey="time" stroke="#5F6B7A" fontSize={10} tickLine={false} axisLine={false} />
                  <YAxis domain={[0, 100]} hide={true} />
                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '4px', fontSize: '12px' }}
+                    contentStyle={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E1D8', borderRadius: '8px', fontSize: '12px', color: '#182235' }}
                     itemStyle={{ color: hexColor }}
                  />
                  <Line type="monotone" dataKey="score" stroke={hexColor} strokeWidth={2} dot={{ r: 3, fill: hexColor }} activeDot={{ r: 5 }} />
@@ -115,6 +127,12 @@ const RiskCard: React.FC<RiskCardProps> = ({ hazard, score, level, confidence, f
            </div>
         </div>
       )}
+
+      <RiskExplanation 
+        isOpen={isExplanationOpen} 
+        onClose={() => setIsExplanationOpen(false)} 
+        hazardData={{ hazard, level, score, factors }}
+      />
     </div>
   );
 };

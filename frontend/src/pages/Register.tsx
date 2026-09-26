@@ -7,8 +7,14 @@ const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [country, setCountry] = useState('');
+  const [state, setState] = useState('');
+  const [city, setCity] = useState('');
+  const [lat, setLat] = useState<number | null>(null);
+  const [lon, setLon] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [locationMessage, setLocationMessage] = useState('');
   
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -18,7 +24,8 @@ const Register = () => {
     setError('');
     setLoading(true);
     try {
-      const res = await api.post('/auth/register', { name, email, password, role: 'Citizen' });
+      const location = { country, state, city, lat, lon };
+      const res = await api.post('/auth/register', { name, email, password, role: 'Citizen', location });
       login(res.data.data.token, res.data.data.user);
       navigate('/');
     } catch (err: any) {
@@ -66,6 +73,69 @@ const Register = () => {
               required
               minLength={6}
             />
+          </div>
+
+          <div className="mb-6 pt-4 border-t border-gray-700">
+            <h3 className="text-white font-semibold mb-4">Your Location</h3>
+            <div className="space-y-4 mb-4">
+              <div>
+                <label className="block text-gray-400 mb-1 text-sm">Country</label>
+                <input 
+                  type="text" 
+                  className="w-full bg-charcoal border border-gray-600 rounded px-4 py-2 text-white focus:outline-none focus:border-warning"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  placeholder="e.g. India"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-400 mb-1 text-sm">State</label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-charcoal border border-gray-600 rounded px-4 py-2 text-white focus:outline-none focus:border-warning"
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                    placeholder="e.g. Andhra Pradesh"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-400 mb-1 text-sm">City</label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-charcoal border border-gray-600 rounded px-4 py-2 text-white focus:outline-none focus:border-warning"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="e.g. Vijayawada"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex flex-col items-start gap-2 mb-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (navigator.geolocation) {
+                    setLocationMessage('Locating...');
+                    navigator.geolocation.getCurrentPosition(
+                      (pos) => {
+                        setLat(pos.coords.latitude);
+                        setLon(pos.coords.longitude);
+                        setLocationMessage('✓ Coordinates saved');
+                      },
+                      (err) => {
+                        setLocationMessage('Permission denied. Please enter manually.');
+                      }
+                    );
+                  }
+                }}
+                className="text-sm bg-gray-700 hover:bg-gray-600 text-white py-1.5 px-3 rounded transition-colors"
+              >
+                📍 Use My Current Location
+              </button>
+              {locationMessage && <span className="text-xs text-warning">{locationMessage}</span>}
+            </div>
           </div>
           <button 
             type="submit" 

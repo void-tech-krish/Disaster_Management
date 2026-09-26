@@ -85,14 +85,16 @@ def train_landslide():
 
 def train_heatwave():
     print("Training Heatwave Model...")
-    df = pd.read_csv(os.path.join(DATA_DIR, 'raw', 'heatwave', 'Rajasthan_Heatwave_2006_2025.csv'))
+    df = pd.read_csv(os.path.join(DATA_DIR, 'raw', 'heatwave', 'india_weather_data.csv'))
+    df = df.dropna(subset=['date']) # Drop rows without dates
+    df = df.fillna(0) # Handle missing values
     
     # Chronological split
-    df_sorted = df.sort_values(by=['YEAR', 'MONTH', 'DAY'])
+    df_sorted = df.sort_values(by=['date'])
     
-    target = 'HEATWAVE'
+    target = 'heatwave'
     # excluding identifiers and target
-    features = ['WIND_U10', 'WIND_V10', 'MSLP', 'BLH', 'GEOP', 'TEMP2M', 'TMAX', 'TMIN', 'DEW2M', 'CLOUD', 'RAIN', 'SRAD', 'EVAP', 'SOILT1', 'SOILM1', 'LAI']
+    features = ['latitude', 'longitude', 'wind_speed', 'cloud_cover', 'precipitation_probability', 'pressure_surface_level', 'dew_point', 'uv_index', 'visibility', 'rainfall', 'solar_radiation', 'snowfall', 'max_temperature', 'min_temperature', 'max_humidity', 'min_humidity']
     
     split_index = int(len(df_sorted) * 0.8)
     train_df = df_sorted.iloc[:split_index]
@@ -116,7 +118,7 @@ def train_heatwave():
         "hazard": "HEATWAVE",
         "model_version": "heatwave-v1",
         "algorithm": "RandomForestClassifier",
-        "dataset": "Rajasthan_Heatwave_2006_2025.csv",
+        "dataset": "india_weather_data.csv",
         "target": target,
         "features": features,
         "metrics": {"Accuracy": acc},

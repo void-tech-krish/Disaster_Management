@@ -51,6 +51,9 @@ app.get('/api/health', (req, res) => {
 });
 app.use('/api/risk', riskRoutes);
 app.use('/api/locations', locationRoutes);
+app.use('/api/states', require('./routes/stateRoutes'));
+app.use('/api/cities', require('./routes/cityRoutes'));
+app.use('/api/relief-camps', require('./routes/reliefCampRoutes'));
 app.use('/api/alerts', alertRoutes);
 app.use('/api/simulate', require('./routes/simulationRoutes'));
 app.use('/api/authority', require('./routes/authorityRoutes'));
@@ -75,7 +78,9 @@ app.use('/api/community-reports', require('./routes/communityReportRoutes'));
 app.use('/api/evacuation', require('./routes/evacuationRoutes'));
 app.use('/api/logistics', require('./routes/logisticsRoutes'));
 app.use('/api/command-center', require('./routes/commandCenterRoutes'));
+app.use('/api/weather', require('./routes/weather.routes'));
 
+app.use('/api/ai', require('./routes/ai.routes'));
 // TODO: Import and use actual routes (locations, hazards, etc.)
 
 // Error handling middleware

@@ -13,7 +13,7 @@ const generateToken = (user) => {
 
 const register = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, location } = req.body;
     
     // Check if user exists
     const existingUser = await User.findUserByEmail(email);
@@ -21,7 +21,7 @@ const register = async (req, res, next) => {
       return res.status(400).json({ status: 'error', message: 'User already exists' });
     }
 
-    const user = await User.createUser(name, email, password, role || 'Citizen');
+    const user = await User.createUser(name, email, password, role || 'Citizen', location);
     const token = generateToken(user);
     
     await createAuditLog({
@@ -127,10 +127,24 @@ const updateUserLanguage = async (req, res, next) => {
   }
 };
 
+const updateUserLocation = async (req, res, next) => {
+  try {
+    const location = req.body;
+    const updatedUser = await User.updateUserLocation(req.user.id, location);
+    if (!updatedUser) {
+      return res.status(404).json({ status: 'error', message: 'User not found' });
+    }
+    res.status(200).json({ status: 'success', data: { user: updatedUser } });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   register,
   login,
   getProfile,
   getUserLanguage,
-  updateUserLanguage
+  updateUserLanguage,
+  updateUserLocation
 };

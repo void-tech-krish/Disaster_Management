@@ -8,5 +8,6 @@ router.post('/login', authController.login);
 router.get('/profile', authenticateToken, authController.getProfile);
 router.get('/language', authenticateToken, authController.getUserLanguage);
 router.put('/language', authenticateToken, authController.updateUserLanguage);
+router.put('/location', authenticateToken, authController.updateUserLocation);
 
 module.exports = router;

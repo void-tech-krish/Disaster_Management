@@ -55,28 +55,28 @@
         "hazard": "HEATWAVE",
         "model_version": "heatwave-v1",
         "algorithm": "RandomForestClassifier",
-        "dataset": "Rajasthan_Heatwave_2006_2025.csv",
-        "target": "HEATWAVE",
+        "dataset": "india_weather_data.csv",
+        "target": "heatwave",
         "features": [
-            "WIND_U10",
-            "WIND_V10",
-            "MSLP",
-            "BLH",
-            "GEOP",
-            "TEMP2M",
-            "TMAX",
-            "TMIN",
-            "DEW2M",
-            "CLOUD",
-            "RAIN",
-            "SRAD",
-            "EVAP",
-            "SOILT1",
-            "SOILM1",
-            "LAI"
+            "latitude",
+            "longitude",
+            "wind_speed",
+            "cloud_cover",
+            "precipitation_probability",
+            "pressure_surface_level",
+            "dew_point",
+            "uv_index",
+            "visibility",
+            "rainfall",
+            "solar_radiation",
+            "snowfall",
+            "max_temperature",
+            "min_temperature",
+            "max_humidity",
+            "min_humidity"
         ],
         "metrics": {
-            "Accuracy": 1.0
+            "Accuracy": 0.9704750222071824
         },
         "status": "TRAINED"
     },
@@ -104,6 +104,24 @@
         ],
         "metrics": {
             "Accuracy": 0.9999568909772816
+        },
+        "status": "TRAINED"
+    },
+    {
+        "hazard": "CYCLONE",
+        "model_version": "cyclone-v1",
+        "algorithm": "RandomForestRegressor",
+        "dataset": "cyclone_labels.csv",
+        "target": "WindSpeed",
+        "features": [
+            "Longitude",
+            "Latitude",
+            "PressureDrop",
+            "Pressure"
+        ],
+        "metrics": {
+            "MSE": 11.60540796963947,
+            "R2": 0.9866305976800136
         },
         "status": "TRAINED"
     }

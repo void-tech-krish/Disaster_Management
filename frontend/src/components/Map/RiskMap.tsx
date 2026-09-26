@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Map, { Marker, Popup, Source, Layer, NavigationControl } from 'react-map-gl';
+import type { FillLayer, LineLayer } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
@@ -24,7 +25,7 @@ interface RiskMapProps {
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
-const RiskMap: React.FC<RiskMapProps> = ({ locations, activeFilter, showPopulation, cycloneData }) => {
+const RiskMap: React.FC<RiskMapProps> = ({ locations, activeFilter, showPopulation }) => {
   const status = useNetworkStatus();
   
   const [riskZones, setRiskZones] = useState<any>(null);
@@ -54,9 +55,9 @@ const RiskMap: React.FC<RiskMapProps> = ({ locations, activeFilter, showPopulati
     ? locations 
     : locations.filter(l => l.hazard === activeFilter);
 
-  const riskZoneStyle = useMemo(() => ({
+  const riskZoneStyle = useMemo<Omit<FillLayer, 'source'>>(() => ({
     id: 'risk-zones-layer',
-    type: 'fill' as const,
+    type: 'fill',
     paint: {
       'fill-color': ['match', ['get', 'risk_level'],
         'CRITICAL', '#ef4444',
@@ -68,9 +69,9 @@ const RiskMap: React.FC<RiskMapProps> = ({ locations, activeFilter, showPopulati
     }
   }), []);
 
-  const warningStyle = useMemo(() => ({
+  const warningStyle = useMemo<Omit<LineLayer, 'source'>>(() => ({
     id: 'warnings-layer',
-    type: 'line' as const,
+    type: 'line',
     paint: {
       'line-color': '#ef4444',
       'line-width': 3,

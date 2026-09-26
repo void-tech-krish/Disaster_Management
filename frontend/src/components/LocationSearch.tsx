@@ -106,13 +106,13 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationSelected }) =
               longitude
             });
           }
-        } catch (err) {
+        } catch {
           setError('Failed to resolve current location');
         } finally {
           setLoading(false);
         }
       },
-      (err) => {
+      () => {
         setError('Location permission denied. Please search manually.');
         setLoading(false);
       }

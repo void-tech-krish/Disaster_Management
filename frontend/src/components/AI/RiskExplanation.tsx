@@ -29,7 +29,7 @@ const RiskExplanation: React.FC<RiskExplanationProps> = ({ isOpen, onClose, haza
         weather: {}
       })
       .then(res => setExplanation(res.data.explanation))
-      .catch(err => setError('AI assistant is temporarily unavailable. Your risk and weather information are still available.'))
+      .catch(() => setError('AI assistant is temporarily unavailable. Your risk and weather information are still available.'))
       .finally(() => setLoading(false));
     }
   }, [isOpen, hazardData]);

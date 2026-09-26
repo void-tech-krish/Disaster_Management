@@ -124,7 +124,7 @@ const Register = () => {
                         setLon(pos.coords.longitude);
                         setLocationMessage('✓ Coordinates saved');
                       },
-                      (err) => {
+                      () => {
                         setLocationMessage('Permission denied. Please enter manually.');
                       }
                     );

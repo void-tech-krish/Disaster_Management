@@ -41,15 +41,14 @@ import ConnectionStatus from './components/PWA/ConnectionStatus';
 import AIAssistant from './components/AI/AIAssistant';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { LanguageProvider } from './context/LanguageContext';
 import { socket } from './services/socket';
 import api from './services/api';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
-  const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [, setUnreadCount] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {

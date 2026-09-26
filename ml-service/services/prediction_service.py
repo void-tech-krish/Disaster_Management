@@ -12,6 +12,43 @@ LANDSLIDE_MODEL_PATH = os.path.join(MODELS_DIR, 'landslide_model.pkl')
 HEATWAVE_MODEL_PATH = os.path.join(MODELS_DIR, 'heatwave_model.pkl')
 DROUGHT_MODEL_PATH = os.path.join(MODELS_DIR, 'drought_model.pkl')
 
+loaded_models = {
+    'flood': None,
+    'landslide': None,
+    'heatwave': None,
+    'drought': None
+}
+
+def load_models():
+    if os.path.exists(FLOOD_MODEL_PATH):
+        try:
+            loaded_models['flood'] = joblib.load(FLOOD_MODEL_PATH)
+        except Exception as e:
+            print(f"Error loading flood model: {e}")
+    if os.path.exists(LANDSLIDE_MODEL_PATH):
+        try:
+            loaded_models['landslide'] = joblib.load(LANDSLIDE_MODEL_PATH)
+        except Exception as e:
+            print(f"Error loading landslide model: {e}")
+    if os.path.exists(HEATWAVE_MODEL_PATH):
+        try:
+            loaded_models['heatwave'] = joblib.load(HEATWAVE_MODEL_PATH)
+        except Exception as e:
+            print(f"Error loading heatwave model: {e}")
+    if os.path.exists(DROUGHT_MODEL_PATH):
+        try:
+            loaded_models['drought'] = joblib.load(DROUGHT_MODEL_PATH)
+        except Exception as e:
+            print(f"Error loading drought model: {e}")
+
+def get_models_status():
+    return {
+        'flood': loaded_models['flood'] is not None,
+        'landslide': loaded_models['landslide'] is not None,
+        'heatwave': loaded_models['heatwave'] is not None,
+        'drought': loaded_models['drought'] is not None
+    }
+
 def get_risk_level(score):
     if score >= 80:
         return "CRITICAL"
@@ -49,15 +86,14 @@ def predict_flood(data: dict):
         "WetlandLoss", "InadequatePlanning", "PoliticalFactors"
     ]
     
-    if os.path.exists(FLOOD_MODEL_PATH):
-        model = joblib.load(FLOOD_MODEL_PATH)
+    model = loaded_models.get('flood')
+    if model:
         features = np.array([[data.get(k, 5.0) for k in feature_names]])
         prob = model.predict(features)[0] # Regressor output
         score = int(prob * 100)
         factors = get_explainable_factors(model, feature_names, features)
     else:
-        score = 0
-        factors = []
+        raise ValueError("Flood model is not loaded or unavailable")
         
     return {
         "hazard": "flood",
@@ -73,8 +109,8 @@ def predict_flood(data: dict):
 def predict_landslide(data: dict):
     feature_names = ['Temperature (°C)', 'Humidity (%)', 'Precipitation (mm)', 'Soil Moisture (%)', 'Elevation (m)']
     
-    if os.path.exists(LANDSLIDE_MODEL_PATH):
-        model = joblib.load(LANDSLIDE_MODEL_PATH)
+    model = loaded_models.get('landslide')
+    if model:
         features = np.array([[data.get(k, 0) for k in feature_names]])
         # RandomForestClassifier -> low, moderate, high output, but we need proba for score.
         try:
@@ -88,8 +124,7 @@ def predict_landslide(data: dict):
             score = 50
         factors = get_explainable_factors(model, feature_names, features)
     else:
-        score = 0
-        factors = []
+        raise ValueError("Landslide model is not loaded or unavailable")
         
     return {
         "hazard": "landslide",
@@ -151,15 +186,14 @@ def process_cyclone(data: dict):
 def predict_heatwave(data: dict):
     feature_names = ['latitude', 'longitude', 'wind_speed', 'cloud_cover', 'precipitation_probability', 'pressure_surface_level', 'dew_point', 'uv_index', 'visibility', 'rainfall', 'solar_radiation', 'snowfall', 'max_temperature', 'min_temperature', 'max_humidity', 'min_humidity']
     
-    if os.path.exists(HEATWAVE_MODEL_PATH):
-        model = joblib.load(HEATWAVE_MODEL_PATH)
+    model = loaded_models.get('heatwave')
+    if model:
         features = np.array([[data.get(k, 0) for k in feature_names]])
         label = model.predict(features)[0] # 0 or 1
         score = 85 if label == 1 else 20
         factors = get_explainable_factors(model, feature_names, features)
     else:
-        score = 0
-        factors = []
+        raise ValueError("Heatwave model is not loaded or unavailable")
         
     return {
         "hazard": "heatwave",
@@ -175,16 +209,15 @@ def predict_heatwave(data: dict):
 def predict_drought(data: dict):
     feature_names = ['RH2M', 'T2M_MAX', 'T2M_MIN', 'WS2M', 'T2M', 'ALLSKY_SFC_SW_DWN', 'PRECTOTCORR', 'spei', 'lat_sin', 'lat_cos', 'lon_sin', 'lon_cos', 'month_sin', 'month_cos']
     
-    if os.path.exists(DROUGHT_MODEL_PATH):
-        model = joblib.load(DROUGHT_MODEL_PATH)
+    model = loaded_models.get('drought')
+    if model:
         features = np.array([[data.get(k, 0) for k in feature_names]])
         label = model.predict(features)[0]
         # label maps to drought categories, mock score based on label mapping
         score = min(100, int(label * 20)) if isinstance(label, (int, float)) else 50
         factors = get_explainable_factors(model, feature_names, features)
     else:
-        score = 0
-        factors = []
+        raise ValueError("Drought model is not loaded or unavailable")
         
     return {
         "hazard": "drought",
@@ -200,11 +233,13 @@ def predict_drought(data: dict):
 def predict_forest_fire(data: dict):
     return {
         "hazard": "forest_fire",
-        "risk_score": 0,
-        "risk_level": "LOW",
+        "risk_score": None,
+        "risk_level": "UNKNOWN",
         "confidence": 0,
         "factors": [],
         "forecasts": [],
+        "status": "DEMO / NOT TRAINED",
+        "message": "Forest Fire model is not yet available.",
         "source": "Dataset unavailable"
     }
 

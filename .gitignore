@@ -16,6 +16,7 @@ logs/
 .DS_Store
 
 ml-service/data/raw/
+!ml-service/data/raw/cyclone/cyclone_labels.csv
 ml-service/data/processed/
 ml-service/models/*.pkl
 ml-service/models/*.joblib

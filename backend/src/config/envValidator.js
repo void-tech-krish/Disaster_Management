@@ -1,10 +1,16 @@
 const validateEnv = () => {
   const requiredVariables = [
     'DATABASE_URL',
-    'JWT_SECRET'
+    'JWT_SECRET',
+    'ML_SERVICE_URL',
+    'CLIENT_URL'
   ];
 
   const missing = requiredVariables.filter(key => !process.env[key]);
+
+  if (process.env.ENABLE_AI === 'true' && !process.env.GEMINI_API_KEY) {
+    missing.push('GEMINI_API_KEY (Required when ENABLE_AI is true)');
+  }
 
   if (missing.length > 0) {
     console.error('====================================================');

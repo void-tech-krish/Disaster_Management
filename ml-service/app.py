@@ -1,12 +1,19 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional
+from contextlib import asynccontextmanager
 from services.prediction_service import (
     predict_flood, predict_landslide, process_cyclone, get_cyclone_history,
-    predict_heatwave, predict_forest_fire, predict_drought
+    predict_heatwave, predict_forest_fire, predict_drought,
+    load_models, get_models_status
 )
 
-app = FastAPI(title="DisasterGuard AI ML Service")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    load_models()
+    yield
+
+app = FastAPI(title="DisasterGuard AI ML Service", lifespan=lifespan)
 
 class FloodRequest(BaseModel):
     MonsoonIntensity: float = 5.0
@@ -84,12 +91,14 @@ class GenericRequest(BaseModel):
 
 @app.get("/health")
 def health_check():
-    import os
-    flood_model = os.path.exists("models/flood_model.pkl")
-    landslide_model = os.path.exists("models/landslide_model.pkl")
-    if not (flood_model and landslide_model):
-        raise HTTPException(status_code=503, detail="Required ML models are missing")
-    return {"status": "success", "message": "ML Service is running with all models loaded"}
+    status_data = get_models_status()
+    all_loaded = all(status_data.values())
+    status = "ok" if all_loaded else "degraded"
+    
+    return {
+        "status": status,
+        "models": status_data
+    }
 
 @app.post("/predict/flood")
 def get_flood_prediction(data: FloodRequest):

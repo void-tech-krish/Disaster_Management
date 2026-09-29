@@ -23,7 +23,13 @@ const chat = async (req, res) => {
         res.json({ success: true, reply, source: 'gemini' });
     } catch (error) {
         console.error('Gemini chat error:', error.message);
-        res.status(503).json({ success: false, message: 'AI service temporarily unavailable.' });
+        res.status(503).json({ 
+            success: false, 
+            message: 'AI service temporarily unavailable.',
+            _debug_error: error.message,
+            _debug_model: process.env.GEMINI_MODEL || 'default-fallback',
+            _debug_ai_enabled: process.env.ENABLE_AI
+        });
     }
 };
 

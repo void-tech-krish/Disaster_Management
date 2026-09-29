@@ -5,6 +5,11 @@ const MAX_MESSAGE_LENGTH = 1000;
 
 const chat = async (req, res) => {
     try {
+        console.log('[AI CHAT] Request received');
+        console.log('[AI CHAT] AI enabled:', process.env.ENABLE_AI === 'true');
+        console.log('[AI CHAT] Gemini configured:', !!process.env.GEMINI_API_KEY);
+        console.log('[AI CHAT] Model configured:', !!process.env.GEMINI_MODEL);
+
         const { message, context } = req.body;
         if (!message) {
             return res.status(400).json({ success: false, message: 'Message is required' });
@@ -14,6 +19,7 @@ const chat = async (req, res) => {
         }
         
         const reply = await geminiService.generateAIResponse(context || {}, message);
+        console.log('[AI CHAT] Gemini response received');
         res.json({ success: true, reply, source: 'gemini' });
     } catch (error) {
         console.error('Gemini chat error:', error.message);

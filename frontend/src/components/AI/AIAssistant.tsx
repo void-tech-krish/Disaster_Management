@@ -33,6 +33,9 @@ const AIAssistant: React.FC = () => {
     setIsLoading(true);
 
     try {
+      console.log('[AI CHAT] Sending request');
+      console.log('[AI CHAT] API URL:', import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
+
       const response = await api.post('/ai/chat', { 
         message: text,
         context: {
@@ -42,6 +45,8 @@ const AIAssistant: React.FC = () => {
         }
       });
       
+      console.log('[AI CHAT] Response:', response.data);
+
       const aiMessage: Message = { 
         id: (Date.now() + 1).toString(), 
         sender: 'ai', 

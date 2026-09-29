@@ -41,24 +41,42 @@ const withTimeout = (promise, ms) => {
     ]);
 };
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const withRetry = async (fn, maxRetries = 3) => {
+    let attempt = 0;
+    while (attempt < maxRetries) {
+        try {
+            return await fn();
+        } catch (error) {
+            attempt++;
+            if (attempt >= maxRetries || !error.message.includes('503 Service Unavailable')) {
+                throw error;
+            }
+            const delayMs = attempt * 1000; // 1s, 2s
+            await delay(delayMs);
+        }
+    }
+};
+
 const generateAIResponse = async (context, userMessage) => {
     const model = getModel();
     const prompt = `Context:\n${JSON.stringify(context, null, 2)}\n\nUser Message: ${userMessage}`;
-    const result = await withTimeout(model.generateContent(prompt), 10000); // 10s timeout
+    const result = await withRetry(() => withTimeout(model.generateContent(prompt), 10000));
     return result.response.text();
 };
 
 const explainRisk = async (context) => {
     const model = getModel();
     const prompt = `Context:\n${JSON.stringify(context, null, 2)}\n\nPlease explain the current risk assessment. Include what the model assessed, which supplied factors are relevant, what the assessment means, practical preparedness actions, and limitations. Remember to say 'These factors contributed to the model's risk assessment.'`;
-    const result = await withTimeout(model.generateContent(prompt), 10000);
+    const result = await withRetry(() => withTimeout(model.generateContent(prompt), 10000));
     return result.response.text();
 };
 
 const explainWhatIf = async (context, scenario) => {
     const model = getModel();
     const prompt = `Context:\n${JSON.stringify(context, null, 2)}\nScenario applied:\n${JSON.stringify(scenario, null, 2)}\n\nPlease explain the scenario using the supplied model/risk information. Do not invent a new risk score unless provided in the context.`;
-    const result = await withTimeout(model.generateContent(prompt), 10000);
+    const result = await withRetry(() => withTimeout(model.generateContent(prompt), 10000));
     return result.response.text();
 };
 

@@ -8,7 +8,11 @@ const chat = async (req, res) => {
         console.log('[AI CHAT] Request received');
         console.log('[AI CHAT] AI enabled:', process.env.ENABLE_AI === 'true');
         console.log('[AI CHAT] Gemini configured:', !!process.env.GEMINI_API_KEY);
-        console.log('[AI CHAT] Model configured:', !!process.env.GEMINI_MODEL);
+        console.log('[AI CHAT] Model configured:', process.env.GEMINI_MODEL || 'gemini-3.8-flash');
+
+        if (process.env.ENABLE_AI !== 'true') {
+            return res.status(503).json({ success: false, message: 'AI service is currently disabled.' });
+        }
 
         const { message, context } = req.body;
         if (!message) {

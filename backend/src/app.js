@@ -6,6 +6,9 @@ const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
+// Trust proxy for Render deployment before rate limiting
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(helmet());
 
